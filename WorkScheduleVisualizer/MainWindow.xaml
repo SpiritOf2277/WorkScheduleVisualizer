@@ -21,29 +21,54 @@
         <!-- Левая часть: Таблица для отображения недели и смен -->
         <Grid Grid.Column="0">
             <TextBlock Text="Weekly Schedule" FontSize="16" FontWeight="Bold" Margin="10"/>
-            <DataGrid ItemsSource="{Binding Employees}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10">
+            <DataGrid ItemsSource="{Binding WeeklySchedule}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Employee" Binding="{Binding Name}" />
-                    <DataGridTemplateColumn Header="Day Shift">
+                    <DataGridTextColumn Header="Day" Binding="{Binding Day}" />
+                    <DataGridTemplateColumn Header="Morning Shift">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <ItemsControl ItemsSource="{Binding Shifts}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Background="LightBlue" Margin="2" Padding="2"
-                                                    AllowDrop="True"
-                                                    DragEnter="Shift_DragEnter"
-                                                    DragLeave="Shift_DragLeave"
-                                                    Drop="Shift_Drop">
-                                                <TextBlock Text="{Binding Type}" />
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                <Border Background="LightBlue" Margin="2" Padding="2"
+                                        Name="MorningShift"
+                                        AllowDrop="True"
+                                        DragEnter="Shift_DragEnter"
+                                        DragLeave="Shift_DragLeave"
+                                        Drop="Shift_Drop"
+                                        MouseMove="Shift_MouseMove">
+                                    <TextBlock Text="{Binding MorningShift.Name}" />
+                                </Border>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <!-- Add more columns for Evening and Night shifts similarly -->
+                    <DataGridTemplateColumn Header="Evening Shift">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Background="LightBlue" Margin="2" Padding="2"
+                                        Name="EveningShift"
+                                        AllowDrop="True"
+                                        DragEnter="Shift_DragEnter"
+                                        DragLeave="Shift_DragLeave"
+                                        Drop="Shift_Drop"
+                                        MouseMove="Shift_MouseMove">
+                                    <TextBlock Text="{Binding EveningShift.Name}" />
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Night Shift">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Background="LightBlue" Margin="2" Padding="2"
+                                        Name="NightShift"
+                                        AllowDrop="True"
+                                        DragEnter="Shift_DragEnter"
+                                        DragLeave="Shift_DragLeave"
+                                        Drop="Shift_Drop"
+                                        MouseMove="Shift_MouseMove">
+                                    <TextBlock Text="{Binding NightShift.Name}" />
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
