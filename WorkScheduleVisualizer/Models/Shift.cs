@@ -7,7 +7,7 @@ namespace WorkScheduleVisualizer.Models
     public class Shift
     {
         public enum ShiftType { Day, Evening, Night }
-        public string Name { get; set; }  // Добавлено свойство Name
+        public string Name { get; set; }
         public ShiftType Type { get; set; }
         public int Hours { get; set; }
         public DateTime Date { get; set; }

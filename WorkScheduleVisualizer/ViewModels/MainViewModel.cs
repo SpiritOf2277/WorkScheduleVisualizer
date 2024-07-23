@@ -126,7 +126,7 @@ namespace WorkScheduleVisualizer.ViewModels
                 var droppedData = data.Item3;
 
                 if (droppedData is Employee employee) {
-                    var date = DateTime.Now;  // Пример для установки корректной даты
+                    var date = DateTime.Now;
                     switch (shiftType) {
                         case "MorningShift":
                             schedule.MorningShift = new Shift { Name = employee.Name, Type = Shift.ShiftType.Day, Hours = 8, Date = date };
