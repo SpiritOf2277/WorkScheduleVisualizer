@@ -16,7 +16,7 @@
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
-    <Grid Margin="5, 0">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*" />
             <ColumnDefinition Width="*" />
@@ -24,7 +24,6 @@
 
         <!-- Левая часть: Таблица для отображения недели и смен -->
         <Grid Grid.Column="0">
-            <TextBlock Text="Weekly Schedule" FontSize="16" FontWeight="Bold" Margin="10"/>
             <DataGrid ItemsSource="{Binding WeeklySchedule}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Day" Binding="{Binding Day}" />
@@ -34,7 +33,7 @@
                                 <Border Background="LightBlue" Margin="2" Padding="2" Name="MorningShift">
                                     <TextBlock Text="{Binding MorningShift.Name}" />
                                     <i:Interaction.Behaviors>
-                                        <behaviors:DragDropBehavior DropCommand="{Binding DataContext.DropCommand, RelativeSource={RelativeSource AncestorType=Window}}" ShiftType="MorningShift"/>
+                                        <behaviors:DragDropBehavior DropCommand="{Binding DataContext.DropCommand, RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}" ShiftType="MorningShift"/>
                                     </i:Interaction.Behaviors>
                                 </Border>
                             </DataTemplate>
@@ -46,7 +45,7 @@
                                 <Border Background="LightBlue" Margin="2" Padding="2" Name="EveningShift">
                                     <TextBlock Text="{Binding EveningShift.Name}" />
                                     <i:Interaction.Behaviors>
-                                        <behaviors:DragDropBehavior DropCommand="{Binding DataContext.DropCommand, RelativeSource={RelativeSource AncestorType=Window}}" ShiftType="EveningShift"/>
+                                        <behaviors:DragDropBehavior DropCommand="{Binding DataContext.DropCommand, RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}" ShiftType="EveningShift"/>
                                     </i:Interaction.Behaviors>
                                 </Border>
                             </DataTemplate>
@@ -58,7 +57,7 @@
                                 <Border Background="LightBlue" Margin="2" Padding="2" Name="NightShift">
                                     <TextBlock Text="{Binding NightShift.Name}" />
                                     <i:Interaction.Behaviors>
-                                        <behaviors:DragDropBehavior DropCommand="{Binding DataContext.DropCommand, RelativeSource={RelativeSource AncestorType=Window}}" ShiftType="NightShift"/>
+                                        <behaviors:DragDropBehavior DropCommand="{Binding DataContext.DropCommand, RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}" ShiftType="NightShift"/>
                                     </i:Interaction.Behaviors>
                                 </Border>
                             </DataTemplate>
@@ -70,21 +69,20 @@
 
         <!-- Правая часть: Панель для добавления сотрудников -->
         <StackPanel Grid.Column="1" Orientation="Vertical" Margin="10">
-            <TextBlock Text="Add New Employee" FontSize="16" FontWeight="Bold" Margin="10"/>
             <Button Content="Add Employee" Command="{Binding AddEmployeeCommand}" Width="200" Margin="10"/>
 
             <ItemsControl ItemsSource="{Binding Employees}" Margin="10">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="LightGreen" Margin="2" Padding="2">
+                        <Border Background="LightGreen" Margin="2" Padding="2" Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}">
                             <TextBlock Text="{Binding Name}" />
                             <i:Interaction.Behaviors>
                                 <behaviors:DragDropBehavior />
                             </i:Interaction.Behaviors>
                             <Border.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Edit" Command="{Binding DataContext.EditEmployeeCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
-                                    <MenuItem Header="Delete" Command="{Binding DataContext.DeleteEmployeeCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                                <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                    <MenuItem Header="Edit" Command="{Binding EditEmployeeCommand}" CommandParameter="{Binding}"/>
+                                    <MenuItem Header="Delete" Command="{Binding DeleteEmployeeCommand}" CommandParameter="{Binding}"/>
                                 </ContextMenu>
                             </Border.ContextMenu>
                         </Border>

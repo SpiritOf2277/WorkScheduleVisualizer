@@ -19,7 +19,13 @@ namespace WorkScheduleVisualizer.ViewModels
         public Employee SelectedEmployee
         {
             get => _selectedEmployee;
-            set { _selectedEmployee = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedEmployee = value;
+                OnPropertyChanged();
+                ((RelayCommand)EditEmployeeCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)DeleteEmployeeCommand).RaiseCanExecuteChanged();
+            }
         }
 
         public ICommand AddEmployeeCommand { get; }
@@ -31,7 +37,7 @@ namespace WorkScheduleVisualizer.ViewModels
         {
             InitializeSchedule();
             AddEmployeeCommand = new RelayCommand(OpenAddEmployeeWindow);
-            EditEmployeeCommand = new RelayCommand(EditEmployee);
+            EditEmployeeCommand = new RelayCommand(OpenEditEmployeeWindow);
             DeleteEmployeeCommand = new RelayCommand(DeleteEmployee);
             DropCommand = new RelayCommand<object>(ExecuteDrop);
         }
@@ -57,15 +63,38 @@ namespace WorkScheduleVisualizer.ViewModels
             {
                 var employee = new Employee { Name = args.EmployeeName };
                 Employees.Add(employee);
+                Console.WriteLine($"Employee added: {args.EmployeeName}");
             };
 
             var employeeWindow = new EmployeeWindow(employeeViewModel);
             employeeWindow.ShowDialog();
         }
 
-        private void EditEmployee()
+        private void OpenEditEmployeeWindow()
         {
-            // Логика для редактирования сотрудника
+            if (SelectedEmployee == null) return;
+
+            var employeeViewModel = new EmployeeViewModel
+            {
+                EmployeeName = SelectedEmployee.Name,
+                IsEditing = true
+            };
+
+            employeeViewModel.EmployeeUpdated += (sender, args) =>
+            {
+                SelectedEmployee.Name = args.EmployeeName;
+                Console.WriteLine($"Employee updated: {args.EmployeeName}");
+            };
+
+            var employeeWindow = new EmployeeWindow(employeeViewModel);
+            employeeWindow.ShowDialog();
+        }
+
+        private bool CanEditOrDeleteEmployee()
+        {
+            var canExecute = SelectedEmployee != null;
+            Console.WriteLine($"CanEditOrDeleteEmployee: {canExecute}");
+            return canExecute;
         }
 
         private void DeleteEmployee()
@@ -83,6 +112,7 @@ namespace WorkScheduleVisualizer.ViewModels
                         schedule.NightShift = new Shift();
                     }
                 }
+                Console.WriteLine($"Employee deleted: {SelectedEmployee.Name}");
                 SelectedEmployee = null;
             }
         }
@@ -108,6 +138,7 @@ namespace WorkScheduleVisualizer.ViewModels
                             schedule.NightShift = new Shift { Name = employee.Name, Type = Shift.ShiftType.Night, Hours = 8, Date = date };
                             break;
                     }
+                    Console.WriteLine($"Employee {employee.Name} dropped to {shiftType}");
                 } else if (droppedData is Shift shift) {
                     switch (shiftType) {
                         case "MorningShift":
@@ -120,6 +151,7 @@ namespace WorkScheduleVisualizer.ViewModels
                             schedule.NightShift = new Shift();
                             break;
                     }
+                    Console.WriteLine($"Shift cleared for {shiftType}");
                 }
             }
         }

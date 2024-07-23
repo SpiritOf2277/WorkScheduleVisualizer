@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -20,6 +21,7 @@ namespace WorkScheduleVisualizer.ViewModels
         public ICommand CancelCommand { get; }
 
         public event EventHandler<EmployeeEventArgs> EmployeeAdded;
+        public event EventHandler<EmployeeEventArgs> EmployeeUpdated;
 
         public EmployeeViewModel()
         {
@@ -34,7 +36,11 @@ namespace WorkScheduleVisualizer.ViewModels
 
         private void Save()
         {
-            EmployeeAdded?.Invoke(this, new EmployeeEventArgs { EmployeeName = EmployeeName });
+            if (IsEditing) {
+                EmployeeUpdated?.Invoke(this, new EmployeeEventArgs { EmployeeName = EmployeeName });
+            } else {
+                EmployeeAdded?.Invoke(this, new EmployeeEventArgs { EmployeeName = EmployeeName });
+            }
             CloseWindow();
         }
 
@@ -45,8 +51,10 @@ namespace WorkScheduleVisualizer.ViewModels
 
         private void CloseWindow()
         {
-            Application.Current.Windows[Application.Current.Windows.Count - 1].Close();
+            Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive)?.Close();
         }
+
+        public bool IsEditing { get; set; } = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
