@@ -2,9 +2,11 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using WorkScheduleVisualizer.Commands;
 using WorkScheduleVisualizer.Models;
+using WorkScheduleVisualizer.Views;
 
 namespace WorkScheduleVisualizer.ViewModels
 {
@@ -13,10 +15,25 @@ namespace WorkScheduleVisualizer.ViewModels
         public ObservableCollection<Employee> Employees { get; set; } = new ObservableCollection<Employee>();
         public ObservableCollection<Schedule> WeeklySchedule { get; set; }
 
+        private Employee _selectedEmployee;
+        public Employee SelectedEmployee
+        {
+            get => _selectedEmployee;
+            set { _selectedEmployee = value; OnPropertyChanged(); }
+        }
+
+        public ICommand AddEmployeeCommand { get; }
+        public ICommand EditEmployeeCommand { get; }
+        public ICommand DeleteEmployeeCommand { get; }
+        public ICommand DropCommand { get; }
+
         public MainViewModel()
         {
             InitializeSchedule();
-            AddEmployeeCommand = new RelayCommand(AddEmployee, CanAddEmployee);
+            AddEmployeeCommand = new RelayCommand(OpenAddEmployeeWindow);
+            EditEmployeeCommand = new RelayCommand(EditEmployee);
+            DeleteEmployeeCommand = new RelayCommand(DeleteEmployee);
+            DropCommand = new RelayCommand<object>(ExecuteDrop);
         }
 
         private void InitializeSchedule()
@@ -33,25 +50,78 @@ namespace WorkScheduleVisualizer.ViewModels
             };
         }
 
-        private string _employeeName;
-        public string EmployeeName
+        private void OpenAddEmployeeWindow()
         {
-            get => _employeeName;
-            set { _employeeName = value; OnPropertyChanged(); }
+            var employeeViewModel = new EmployeeViewModel();
+            employeeViewModel.EmployeeAdded += (sender, args) =>
+            {
+                var employee = new Employee { Name = args.EmployeeName };
+                Employees.Add(employee);
+            };
+
+            var employeeWindow = new EmployeeWindow(employeeViewModel);
+            employeeWindow.ShowDialog();
         }
 
-        public ICommand AddEmployeeCommand { get; }
-
-        private bool CanAddEmployee()
+        private void EditEmployee()
         {
-            return !string.IsNullOrWhiteSpace(EmployeeName);
+            // Логика для редактирования сотрудника
         }
 
-        private void AddEmployee()
+        private void DeleteEmployee()
         {
-            var employee = new Employee { Name = EmployeeName };
-            Employees.Add(employee);
-            EmployeeName = string.Empty;
+            if (SelectedEmployee != null) {
+                Employees.Remove(SelectedEmployee);
+                foreach (var schedule in WeeklySchedule) {
+                    if (schedule.MorningShift.Name == SelectedEmployee.Name) {
+                        schedule.MorningShift = new Shift();
+                    }
+                    if (schedule.EveningShift.Name == SelectedEmployee.Name) {
+                        schedule.EveningShift = new Shift();
+                    }
+                    if (schedule.NightShift.Name == SelectedEmployee.Name) {
+                        schedule.NightShift = new Shift();
+                    }
+                }
+                SelectedEmployee = null;
+            }
+        }
+
+        private void ExecuteDrop(object parameter)
+        {
+            var data = parameter as Tuple<Schedule, string, object>;
+            if (data != null) {
+                var schedule = data.Item1;
+                var shiftType = data.Item2;
+                var droppedData = data.Item3;
+
+                if (droppedData is Employee employee) {
+                    var date = DateTime.Now;  // Пример для установки корректной даты
+                    switch (shiftType) {
+                        case "MorningShift":
+                            schedule.MorningShift = new Shift { Name = employee.Name, Type = Shift.ShiftType.Day, Hours = 8, Date = date };
+                            break;
+                        case "EveningShift":
+                            schedule.EveningShift = new Shift { Name = employee.Name, Type = Shift.ShiftType.Evening, Hours = 8, Date = date };
+                            break;
+                        case "NightShift":
+                            schedule.NightShift = new Shift { Name = employee.Name, Type = Shift.ShiftType.Night, Hours = 8, Date = date };
+                            break;
+                    }
+                } else if (droppedData is Shift shift) {
+                    switch (shiftType) {
+                        case "MorningShift":
+                            schedule.MorningShift = new Shift();
+                            break;
+                        case "EveningShift":
+                            schedule.EveningShift = new Shift();
+                            break;
+                        case "NightShift":
+                            schedule.NightShift = new Shift();
+                            break;
+                    }
+                }
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
