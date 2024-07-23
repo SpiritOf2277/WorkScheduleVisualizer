@@ -1,5 +1,4 @@
-﻿using ControlzEx.Theming;
-using MahApps.Metro.Controls;
+﻿using MahApps.Metro.Controls;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,9 +13,6 @@ namespace WorkScheduleVisualizer
         public MainWindow()
         {
             InitializeComponent();
-
-            ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncWithAppMode;
-            ThemeManager.Current.SyncTheme();
         }
 
         private void Employee_MouseMove(object sender, MouseEventArgs e)
@@ -68,7 +64,7 @@ namespace WorkScheduleVisualizer
                     if (e.Data.GetDataPresent(typeof(Employee))) {
                         var employee = e.Data.GetData(typeof(Employee)) as Employee;
                         if (employee != null) {
-                            var date = DateTime.Now;
+                            var date = DateTime.Now;  // Пример для установки корректной даты
                             switch (border.Name) {
                                 case "MorningShift":
                                     schedule.MorningShift = new Shift { Name = employee.Name, Type = Shift.ShiftType.Day, Hours = 8, Date = date };
@@ -92,6 +88,57 @@ namespace WorkScheduleVisualizer
                             case "NightShift":
                                 schedule.NightShift = new Shift();
                                 break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void EditEmployee_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            if (menuItem != null) {
+                var contextMenu = menuItem.Parent as ContextMenu;
+                if (contextMenu != null) {
+                    var border = contextMenu.PlacementTarget as Border;
+                    if (border != null) {
+                        var employee = border.DataContext as Employee;
+                        if (employee != null) {
+                            // Здесь можно добавить логику для редактирования сотрудника
+                            MessageBox.Show($"Edit Employee: {employee.Name}");
+                        }
+                    }
+                }
+            }
+        }
+
+        private void DeleteEmployee_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            if (menuItem != null) {
+                var contextMenu = menuItem.Parent as ContextMenu;
+                if (contextMenu != null) {
+                    var border = contextMenu.PlacementTarget as Border;
+                    if (border != null) {
+                        var employee = border.DataContext as Employee;
+                        if (employee != null) {
+                            var viewModel = DataContext as WorkScheduleVisualizer.ViewModels.MainViewModel;
+                            if (viewModel != null) {
+                                // Удаляем сотрудника из коллекции
+                                viewModel.Employees.Remove(employee);
+                                // Удаляем сотрудника из расписания
+                                foreach (var schedule in viewModel.WeeklySchedule) {
+                                    if (schedule.MorningShift.Name == employee.Name) {
+                                        schedule.MorningShift = new Shift();
+                                    }
+                                    if (schedule.EveningShift.Name == employee.Name) {
+                                        schedule.EveningShift = new Shift();
+                                    }
+                                    if (schedule.NightShift.Name == employee.Name) {
+                                        schedule.NightShift = new Shift();
+                                    }
+                                }
+                            }
                         }
                     }
                 }

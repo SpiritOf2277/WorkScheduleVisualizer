@@ -31,4 +31,3 @@ namespace WorkScheduleVisualizer.Commands
         }
     }
 }
-

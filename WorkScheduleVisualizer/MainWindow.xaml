@@ -85,6 +85,12 @@
                         <Border Background="LightGreen" Margin="2" Padding="2"
                                 MouseMove="Employee_MouseMove">
                             <TextBlock Text="{Binding Name}" />
+                            <Border.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Edit" Click="EditEmployee_Click" />
+                                    <MenuItem Header="Delete" Click="DeleteEmployee_Click" />
+                                </ContextMenu>
+                            </Border.ContextMenu>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
